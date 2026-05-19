@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Equation Solver Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            --glass-bg: rgba(30, 41, 59, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --accent-blue: #38bdf8;
+            --accent-green: #34d399;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-light);
+            margin: 0;
+            padding: 20px 12px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        /* Animated Ambient Background Glows */
+        .glow-sphere {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(0,0,0,0) 70%);
+            top: -5%;
+            left: -5%;
+            z-index: -1;
+            animation: floatGlow 10s infinite ease-in-out alternate;
+        }
+        .glow-sphere-2 {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, rgba(0,0,0,0) 70%);
+            bottom: -5%;
+            right: -5%;
+            z-index: -1;
+            animation: floatGlow 12s infinite ease-in-out alternate-reverse;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translateY(0px) scale(1); }
+            100% { transform: translateY(20px) scale(1.05); }
+        }
+
+        /* Glassmorphic Board Framework - Fully Responsive */
+        .dashboard {
+            width: 100%;
+            max-width: 1050px;
+            box-sizing: border-box;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            padding: 30px 20px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header i {
+            font-size: 2.5rem;
+            color: var(--accent-blue);
+            margin-bottom: 12px;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+
+        h1 {
+            font-size: calc(1.6rem + 1vw);
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(to right, #ffffff, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        header p {
+            color: var(--text-muted);
+            margin-top: 8px;
+            font-size: calc(0.9rem + 0.2vw);
+        }
+
+        .panel {
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-sizing: border-box;
+        }
+
+        .setup-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-light);
+            text-align: center;
+        }
+
+        input[type="number"] {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            width: 80px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            text-align: center;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .matrix-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+            width: 100%;
+            overflow-x: auto;
+            padding: 15px 0;
+            box-sizing: border-box;
+        }
+
+        /* Webkit scrollbar styles to keep matrix scrolling premium looking on phones */
+        .matrix-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .matrix-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .matrix-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 2px 4px;
+            min-width: max-content;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .matrix-cell {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            width: 65px;
+            height: 42px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .matrix-cell:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+        }
+
+        .constant-cell {
+            border: 1px solid rgba(52, 211, 153, 0.4);
+            background: rgba(52, 211, 153, 0.05);
+        }
+
+        .constant-cell:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 12px rgba(52, 211, 153, 0.3);
+        }
+
+        .equals-sign {
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            padding: 0 2px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .checkbox-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 14px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .checkbox-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .checkbox-card input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-blue);
+            cursor: pointer;
+        }
+
+        .solve-btn {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+            width: 100%;
+            max-width: 320px;
+            margin: 25px auto 0 auto;
+            display: block;
+            font-size: 1.05rem;
+            padding: 14px;
+        }
+
+        .solve-btn:hover {
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+        }
+
+        /* Results Display Grid - Flexes down into 1 single column on mobiles */
+        .results-grid {
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 35px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: #d1d5db;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .results-wrapper {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 16px;
+            max-height: 420px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .method-output-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 4px solid var(--accent-blue);
+            padding: 14px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+
+        .method-output-card.card-gaussian { border-left-color: #3b82f6; }
+        .method-output-card.card-jordan { border-left-color: #f59e0b; }
+        .method-output-card.card-lu { border-left-color: #10b981; }
+
+        .method-name-tag {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .variable-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px 10px;
+            border-radius: 6px;
+            margin: 4px;
+            font-family: monospace;
+            font-size: 0.95rem;
+        }
+
+        .time-lbl {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chart-wrapper {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-sphere"></div>
+    <div class="glow-sphere-2"></div>
+
+    <div class="dashboard">
+        <header>
+            <i class="fa-solid fa-shapes"></i>
+            <h1>Linear Equation Solver</h1>
+            <p>High-Performance Computational Matrix Dashboard</p>
+        </header>
+        
+        <div class="panel">
+            <div class="setup-row">
+                <label for="eq_count"><i class="fa-solid fa-sliders" style="margin-right:6px; color:var(--accent-blue);"></i> Variables / Equations:</label>
+                <input type="number" id="eq_count" min="2" max="10" value="3">
+                <button type="button" onclick="generateMatrix()"><i class="fa-solid fa-table-cells" style="margin-right: 6px;"></i> Create System Grid</button>
+            </div>
+        </div>
+
+        <div id="matrix_section" class="matrix-container"></div>
+
+        <div id="config_panel" class="panel" style="display: none;">
+            <h3><i class="fa-solid fa-microchip" style="color:var(--accent-blue);"></i> Select Algorithms</h3>
+            <div class="options-grid">
+                <label class="checkbox-card">
+                    <input type="checkbox" id="method_gaussian" value="gaussian" checked>
+                    <span>Gaussian Elimination</span>
+                </label>
+                <label class="checkbox-card">
+                    <input type="checkbox" id="method_jordan" value="jordan" checked>
+                    <span>Gauss-Jordan Elimination</span>
+                </label>
+                <label class="checkbox-card">
+                    <input type="checkbox" id="method_lu" value="lu" checked>
+                    <span>LU Decomposition</span>
+                </label>
+            </div>
+
+            <button type="button" class="solve-btn" onclick="solveSystem()"><i class="fa-solid fa-bolt" style="margin-right:8px;"></i> Compute Solution</button>
+        </div>
+
+        <div id="output_section" class="results-grid" style="display: none;">
+            <div>
+                <h3><i class="fa-solid fa-square-poll-vertical" style="color:var(--accent-green);"></i> Outputs Matrix</h3>
+                <div id="results_text" class="results-wrapper"></div>
+            </div>
+            <div>
+                <h3><i class="fa-solid fa-gauge-high" style="color:var(--accent-blue);"></i> Execution Benchmarks</h3>
+                <div class="chart-wrapper">
+                    <canvas id="timeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
